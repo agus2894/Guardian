@@ -29,7 +29,7 @@ app.include_router(whitelist.router)
 # Redirigir raíz a /docs
 @app.get("/")
 async def root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/dashboard")
 
 # Página del Dashboard HTML
 @app.get("/dashboard", response_class=HTMLResponse)
