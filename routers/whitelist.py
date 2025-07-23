@@ -1,18 +1,21 @@
-from fastapi import APIRouter
-import sqlite3
+from fastapi import APIRouter, Form
+from fastapi.responses import JSONResponse
+from db.whitelist import get_whitelist, add_to_whitelist
 
 router = APIRouter(prefix="/whitelist", tags=["Whitelist"])
 
-@router.post("/add")
-async def add_to_whitelist(data: dict):
-    name = data.get("name")
-    mac = data.get("mac")
-    ip = data.get("ip")
+# Obtener todos los dispositivos en la whitelist
+@router.get("/")
+async def listar_whitelist():
+    data = get_whitelist()
+    return {"whitelist": data}
 
-    conn = sqlite3.connect("guardian.db")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO whitelist (name, mac, ip) VALUES (?, ?, ?)", (name, mac, ip))
-    conn.commit()
-    conn.close()
-
-    return {"message": "Dispositivo agregado a la whitelist"}
+# Agregar un nuevo dispositivo a la whitelist
+@router.post("/agregar")
+async def agregar_dispositivo(
+    nombre: str = Form(...),
+    ip: str = Form(...),
+    mac: str = Form(None)
+):
+    add_to_whitelist(nombre, mac, ip)
+    return JSONResponse(content={"mensaje": "Dispositivo agregado a whitelist"}, status_code=200)

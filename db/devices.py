@@ -1,24 +1,21 @@
 import sqlite3
 from datetime import datetime
 
-DB_NAME = "guardian.db"
-
-def save_device(ip, mac):
-    conn = sqlite3.connect(DB_NAME)
+def save_device(ip, mac=""):
+    conn = sqlite3.connect("guardian.db")
     cursor = conn.cursor()
 
-    now = datetime.now().isoformat(timespec='seconds')
-
-    cursor.execute("SELECT * FROM devices WHERE mac = ?", (mac,))
-    existing = cursor.fetchone()
-
-    if existing:
-        # Solo actualizamos la fecha de última detección
-        cursor.execute("UPDATE devices SET last_seen = ?, ip = ? WHERE mac = ?", (now, ip, mac))
-    else:
-        # Insertamos nuevo dispositivo
-        cursor.execute("INSERT INTO devices (ip, mac, last_seen) VALUES (?, ?, ?)", (ip, mac, now))
-
+    cursor.execute(
+        "INSERT INTO devices (ip, fecha_detectado) VALUES (?, ?)",
+        (ip, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    )
     conn.commit()
     conn.close()
 
+def get_devices():
+    conn = sqlite3.connect("guardian.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM devices ORDER BY fecha_detectado DESC")
+    dispositivos = cursor.fetchall()
+    conn.close()
+    return dispositivos

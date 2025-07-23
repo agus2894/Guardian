@@ -1,13 +1,15 @@
-import nmap
+import subprocess
+import re
 
-def scan_network(network_range="192.168.0.0/24"):
-    nm = nmap.PortScanner()
-    # -sn = ping scan, necesita permisos de raw socket
-    nm.scan(hosts=network_range, arguments="-sn")
+def scan_network(rango_ip):
+    resultado = subprocess.run(["nmap", "-sn", rango_ip], capture_output=True, text=True)
+    ips = re.findall(r"Nmap scan report for ([\d\.]+)", resultado.stdout)
 
-    devices = []
-    for host in nm.all_hosts():
-        ip = nm[host]['addresses'].get('ipv4', '')
-        mac = nm[host]['addresses'].get('mac', '')  # cadena vacía si no hay MAC
-        devices.append({"ip": ip, "mac": mac})
-    return devices
+    dispositivos = []
+    for ip in ips:
+        dispositivos.append({
+            "ip": ip,
+            "mac": ""  # No obtenemos MAC
+        })
+
+    return dispositivos

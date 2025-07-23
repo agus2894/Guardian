@@ -6,9 +6,11 @@ EMAIL_ORIGEN = os.getenv("EMAIL_ORIGEN")
 EMAIL_CLAVE = os.getenv("EMAIL_CLAVE")
 EMAIL_DESTINO = os.getenv("EMAIL_DESTINO")
 
-def enviar_alerta_por_email(ip, mac):
+def enviar_alerta_por_email(ip):
     asunto = "⚠️ Alerta de intrusión en tu red"
-    cuerpo = f"Dispositivo NO autorizado detectado:\nIP: {ip}\nMAC: {mac}"
+    cuerpo = f"Dispositivo NO autorizado detectado:\nIP: {ip}"
+
+    # resto igual...
 
     mensaje = EmailMessage()
     mensaje["Subject"] = asunto
