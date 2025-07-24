@@ -5,25 +5,24 @@
     <title>Login - Guardián</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #121212; color: #f1f1f1; padding: 50px; }
+        body { background-color: #121212; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background-color: #1f1f1f; padding: 30px; border-radius: 10px; width: 350px; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2 class="text-center">Guardián - Ingreso</h2>
-    <form method="post" action="/login">
-        <div class="mb-3">
-            <label>Usuario:</label>
-            <input type="text" name="username" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label>Contraseña:</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-success">Ingresar</button>
-    </form>
-</div>
-
+    <div class="card">
+        <h3 class="text-center text-success">Ingreso a Guardián</h3>
+        <form method="post" action="/login">
+            <div class="mb-3">
+                <label>Usuario</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Contraseña</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Iniciar sesión</button>
+        </form>
+    </div>
 </body>
 </html>
