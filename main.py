@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Response, Cookie
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.sessions import SessionMiddleware
 from routers import scan, alerts, whitelist
 from db.database import init_db
 import os
@@ -12,51 +11,51 @@ load_dotenv()
 
 app = FastAPI(title="Guardián - Sistema de Monitoreo de Red")
 
-# Middleware de sesión para login
-app.add_middleware(SessionMiddleware, secret_key="clave_super_secreta")
-
-# Inicializar DB
+# Inicializar base de datos
 init_db()
 
-# Rutas estáticas y plantillas
+# Archivos estáticos y plantillas
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Registrar routers
+# Rutas de API
 app.include_router(scan.router)
 app.include_router(alerts.router)
 app.include_router(whitelist.router)
 
+# Ruta raíz redirige a /login
 @app.get("/")
 async def root():
-    return RedirectResponse(url="/dashboard")
+    return RedirectResponse(url="/login")
 
-# Login - formulario
+# Formulario de login
 @app.get("/login", response_class=HTMLResponse)
-async def login_form(request: Request):
+async def show_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-# Login - validación
+# Procesar login
 @app.post("/login")
-async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+async def login(response: Response, username: str = Form(...), password: str = Form(...)):
     valid_user = os.getenv("GUARDIAN_USER")
     valid_pass = os.getenv("GUARDIAN_PASS")
 
     if username == valid_user and password == valid_pass:
-        request.session["logged_in"] = True
-        return RedirectResponse(url="/dashboard", status_code=302)
+        response = RedirectResponse(url="/dashboard", status_code=302)
+        response.set_cookie("session", "ok")
+        return response
     else:
-        return HTMLResponse("Usuario o contraseña incorrectos", status_code=401)
+        return HTMLResponse(content="Usuario o contraseña incorrectos", status_code=401)
 
-# Logout
+# Cerrar sesión
 @app.get("/logout")
-async def logout(request: Request):
-    request.session.clear()
-    return RedirectResponse(url="/login")
+async def logout():
+    response = RedirectResponse(url="/login")
+    response.delete_cookie("session")
+    return response
 
 # Dashboard protegido
 @app.get("/dashboard", response_class=HTMLResponse)
-async def get_dashboard(request: Request):
-    if not request.session.get("logged_in"):
+async def get_dashboard(request: Request, session: str = Cookie(default=None)):
+    if session != "ok":
         return RedirectResponse(url="/login")
     return templates.TemplateResponse("index.html", {"request": request})
