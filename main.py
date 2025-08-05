@@ -12,42 +12,41 @@ load_dotenv()
 
 app = FastAPI(title="Guardián - Sistema de Monitoreo de Red")
 
-# Middleware para sesión
+# Middleware de sesión para login
 app.add_middleware(SessionMiddleware, secret_key="clave_super_secreta")
 
 # Inicializar DB
 init_db()
 
-# Archivos estáticos y plantillas
+# Rutas estáticas y plantillas
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Rutas de la API
+# Registrar routers
 app.include_router(scan.router)
 app.include_router(alerts.router)
 app.include_router(whitelist.router)
 
-# Redirección raíz
 @app.get("/")
 async def root():
     return RedirectResponse(url="/dashboard")
 
-# Mostrar login
+# Login - formulario
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-# Validar login
+# Login - validación
 @app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
-    valid_user = os.getenv("LOGIN_USER")
-    valid_pass = os.getenv("LOGIN_PASSWORD")
+    valid_user = os.getenv("GUARDIAN_USER")
+    valid_pass = os.getenv("GUARDIAN_PASS")
 
     if username == valid_user and password == valid_pass:
         request.session["logged_in"] = True
         return RedirectResponse(url="/dashboard", status_code=302)
     else:
-        return HTMLResponse(content="Usuario o contraseña incorrectos", status_code=401)
+        return HTMLResponse("Usuario o contraseña incorrectos", status_code=401)
 
 # Logout
 @app.get("/logout")
@@ -55,7 +54,7 @@ async def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/login")
 
-# Dashboard (protegido)
+# Dashboard protegido
 @app.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request: Request):
     if not request.session.get("logged_in"):

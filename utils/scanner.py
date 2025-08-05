@@ -1,15 +1,13 @@
-import subprocess
-import re
+import nmap
 
-def scan_network(rango_ip):
-    resultado = subprocess.run(["nmap", "-sn", rango_ip], capture_output=True, text=True)
-    ips = re.findall(r"Nmap scan report for ([\d\.]+)", resultado.stdout)
+def scan_network(rango):
+    nm = nmap.PortScanner()
+    try:
+        nm.scan(hosts=rango, arguments="-sn")
+    except:
+        return []
 
-    dispositivos = []
-    for ip in ips:
-        dispositivos.append({
-            "ip": ip,
-            "mac": ""  # No obtenemos MAC
-        })
-
-    return dispositivos
+    activos = []
+    for host in nm.all_hosts():
+        activos.append({"ip": host})
+    return activos

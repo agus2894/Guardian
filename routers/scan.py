@@ -1,25 +1,23 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from utils.scanner import scan_network
 from db.devices import save_device
 from db.whitelist import is_ip_authorized
 from db.alerts import create_alert
-from utils.mailer import enviar_alerta_por_email
 
 router = APIRouter(prefix="/scan", tags=["Escaneo"])
 
 @router.get("/")
-async def scan():
-    dispositivos = scan_network("192.168.103.0/24")  # Ajustá el rango según tu red
+async def scan(request: Request):
+    dispositivos = scan_network("192.168.0.0/24")  # Podés cambiar el rango si usás tu celu
     alertas_generadas = []
 
     for d in dispositivos:
         ip = d["ip"]
-        save_device(ip, mac="")  # MAC vacía ya que no se usa
+        save_device(ip)
 
         if not is_ip_authorized(ip):
             desc = f"Dispositivo NO autorizado detectado - IP: {ip}"
             create_alert("Intrusión", desc)
-            enviar_alerta_por_email(ip)  # solo IP
             alertas_generadas.append(desc)
 
     return {
