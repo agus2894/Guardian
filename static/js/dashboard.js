@@ -47,7 +47,18 @@ async function addToWhitelist() {
         alert("✅ Dispositivo agregado a la whitelist");
         document.getElementById('device_name').value = "";
         document.getElementById('device_ip').value = "";
+        getWhitelist();
     } else {
         alert("❌ Error al agregar a whitelist");
     }
+}
+
+async function getWhitelist() {
+    const res = await fetch('/whitelist/');
+    const data = await res.json();
+    const table = document.getElementById('whitelist');
+    table.innerHTML = "<tr><th>ID</th><th>Nombre</th><th>IP</th></tr>";
+    data.whitelist.forEach(item => {
+        table.innerHTML += `<tr><td>${item.id}</td><td>${item.name}</td><td>${item.ip}</td></tr>`;
+    });
 }
