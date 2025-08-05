@@ -1,3 +1,5 @@
+// static/js/dashboard.js
+
 async function getScan() {
     const range = document.getElementById('network_range').value || "192.168.0.0/24";
 
@@ -32,20 +34,20 @@ async function addToWhitelist() {
     const name = document.getElementById('device_name').value;
     const ip = document.getElementById('device_ip').value;
 
-    const data = new URLSearchParams();
-    data.append("nombre", name);
-    data.append("ip", ip);
+    const formData = new FormData();
+    formData.append("nombre", name);
+    formData.append("ip", ip);
 
     const res = await fetch('/whitelist/add', {
         method: 'POST',
-        body: data
+        body: formData
     });
 
     if (res.ok) {
-        alert("Dispositivo agregado a la whitelist");
+        alert("✅ Dispositivo agregado a la whitelist");
         document.getElementById('device_name').value = "";
         document.getElementById('device_ip').value = "";
     } else {
-        alert("Error al agregar a whitelist");
+        alert("❌ Error al agregar a whitelist");
     }
 }
