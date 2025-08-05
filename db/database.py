@@ -10,7 +10,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             ip TEXT,
             mac TEXT,
-            last_seen TEXT
+            last_seen TEXT,
+            authorized INTEGER DEFAULT 0  -- 1 = autorizado, 0 = no
         )
     ''')
 
@@ -20,7 +21,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             mac TEXT UNIQUE,
-            ip TEXT
+            ip TEXT UNIQUE
         )
     ''')
 
