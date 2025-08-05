@@ -1,14 +1,18 @@
-// static/js/dashboard.js
-
 async function getScan() {
     const range = document.getElementById('network_range').value || "192.168.0.0/24";
 
     const res = await fetch('/scan/?network_range=' + encodeURIComponent(range));
     const data = await res.json();
     const table = document.getElementById('devices');
-    table.innerHTML = "<tr><th>IP</th></tr>";
-    data.dispositivos_detectados.forEach(d => {
-        table.innerHTML += `<tr><td>${d.ip}</td></tr>`;
+    table.innerHTML = "<tr><th>IP</th><th>Autorizado</th><th>Última conexión</th></tr>";
+
+    const response = await fetch("/devices/");
+    const allDevices = await response.json();
+
+    allDevices.forEach(d => {
+        const estado = d.authorized ? "Autorizado" : "No autorizado";
+        const clase = d.authorized ? "table-success" : "table-danger";
+        table.innerHTML += `<tr class="${clase}"><td>${d.ip}</td><td>${estado}</td><td>${d.last_seen}</td></tr>`;
     });
 }
 
@@ -32,33 +36,23 @@ async function clearAlerts() {
 
 async function addToWhitelist() {
     const name = document.getElementById('device_name').value;
+    const mac = document.getElementById('device_mac').value;
     const ip = document.getElementById('device_ip').value;
 
-    const formData = new FormData();
-    formData.append("nombre", name);
-    formData.append("ip", ip);
+    const data = { name: name, mac: mac, ip: ip };
 
-    const res = await fetch('/whitelist/add', {
+    const res = await fetch('/whitelist/agregar', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
     });
 
     if (res.ok) {
-        alert("✅ Dispositivo agregado a la whitelist");
+        alert("Dispositivo agregado a la whitelist");
         document.getElementById('device_name').value = "";
+        document.getElementById('device_mac').value = "";
         document.getElementById('device_ip').value = "";
-        getWhitelist();
     } else {
-        alert("❌ Error al agregar a whitelist");
+        alert("Error al agregar a whitelist");
     }
-}
-
-async function getWhitelist() {
-    const res = await fetch('/whitelist/');
-    const data = await res.json();
-    const table = document.getElementById('whitelist');
-    table.innerHTML = "<tr><th>ID</th><th>Nombre</th><th>IP</th></tr>";
-    data.whitelist.forEach(item => {
-        table.innerHTML += `<tr><td>${item.id}</td><td>${item.name}</td><td>${item.ip}</td></tr>`;
-    });
 }
