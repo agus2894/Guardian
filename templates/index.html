@@ -13,6 +13,10 @@
 <body>
 
 <div class="container">
+    <div class="d-flex justify-content-end mb-3">
+        <a href="/logout" class="btn btn-outline-light">Cerrar sesión</a>
+    </div>
+
     <h1>Guardián - Dashboard</h1>
 
     <div class="mb-3">
@@ -24,11 +28,12 @@
         <button class="btn btn-success" onclick="getScan()">Escanear Red</button>
         <button class="btn btn-warning" onclick="getAlerts()">Ver Alertas</button>
         <button class="btn btn-danger" onclick="clearAlerts()">Limpiar Alertas</button>
+        <button class="btn btn-info" onclick="getWhitelist()">Ver Whitelist</button>
     </div>
 
     <h2>Dispositivos Conectados</h2>
     <table class="table table-dark table-striped" id="devices">
-        <tr><th>IP</th><th>Autorizado</th><th>Última conexión</th></tr>
+        <tr><th>IP</th><th>Autorizado</th></tr>
     </table>
 
     <h2>Alertas</h2>
@@ -36,15 +41,16 @@
         <tr><th>ID</th><th>Tipo</th><th>Hora</th><th>Descripción</th></tr>
     </table>
 
+    <h2>Whitelist</h2>
+    <table class="table table-dark table-striped" id="whitelist">
+        <tr><th>ID</th><th>Nombre</th><th>IP</th></tr>
+    </table>
+
     <h2>Agregar a Whitelist</h2>
     <form onsubmit="addToWhitelist(); return false;">
         <div class="mb-3">
             <label>Nombre del dispositivo:</label>
             <input type="text" id="device_name" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label>MAC (opcional):</label>
-            <input type="text" id="device_mac" class="form-control">
         </div>
         <div class="mb-3">
             <label>IP:</label>
