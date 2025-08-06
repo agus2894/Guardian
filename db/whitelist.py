@@ -11,17 +11,17 @@ def is_ip_authorized(ip):
 def get_whitelist():
     conn = sqlite3.connect("guardian.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT name, ip FROM whitelist")
+    cursor.execute("SELECT id, name, ip FROM whitelist")
     results = cursor.fetchall()
     conn.close()
-    return [{"name": row[0], "ip": row[1]} for row in results]
+    return [{"id": row[0], "name": row[1], "ip": row[2]} for row in results]
 
-def add_to_whitelist(name, ip, mac=None):
+def add_to_whitelist(name, ip):
     conn = sqlite3.connect("guardian.db")
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT OR IGNORE INTO whitelist (name, mac, ip) VALUES (?, ?, ?)",
-        (name, mac or "", ip)
+        "INSERT INTO whitelist (name, ip) VALUES (?, ?)",
+        (name, ip)
     )
     conn.commit()
     conn.close()
