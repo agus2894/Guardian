@@ -9,9 +9,9 @@ def main():
 
     if nombre and ip:
         add_to_whitelist(nombre, ip)
-        print("✅ Dispositivo agregado correctamente.")
+        print(" Dispositivo agregado correctamente.")
     else:
-        print("❌ Faltan datos.")
+        print(" Faltan datos.")
 
 if __name__ == "__main__":
     main()
