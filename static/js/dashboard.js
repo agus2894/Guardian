@@ -55,11 +55,10 @@ function getWhitelist() {
         .then(res => res.json())
         .then(data => {
             const table = document.getElementById("whitelist");
-            table.innerHTML = "<tr><th>ID</th><th>Nombre</th><th>IP</th></tr>";
-            data.forEach(item => {
+            table.innerHTML = "<tr><th>Nombre</th><th>IP</th></tr>";
+            data.whitelist.forEach(item => {
                 table.innerHTML += `
                     <tr>
-                        <td>${item.id}</td>
                         <td>${item.name}</td>
                         <td>${item.ip}</td>
                     </tr>
@@ -68,15 +67,18 @@ function getWhitelist() {
         });
 }
 
-// Agregar a whitelist
+// Agregar a whitelist (usando FormData)
 function addToWhitelist() {
     const name = document.getElementById("device_name").value;
     const ip = document.getElementById("device_ip").value;
 
+    const formData = new FormData();
+    formData.append("nombre", name);
+    formData.append("ip", ip);
+
     fetch("/whitelist/agregar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, ip })
+        body: formData
     })
     .then(res => res.json())
     .then(data => {
