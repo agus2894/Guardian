@@ -1,67 +1,86 @@
-async function getScan() {
-    const range = document.getElementById('network_range').value || "192.168.0.0/24";
+// static/js/dashboard.js
 
-    const res = await fetch('/scan/?network_range=' + encodeURIComponent(range));
-    const data = await res.json();
-    const table = document.getElementById('devices');
-    table.innerHTML = "<tr><th>IP</th><th>Autorizado</th></tr>";
-
-    data.dispositivos_detectados.forEach(d => {
-        const autorizado = d.autorizado ? "✅" : "❌";
-        table.innerHTML += `<tr><td>${d.ip}</td><td>${autorizado}</td></tr>`;
-    });
+// Escanear red
+function getScan() {
+    const range = document.getElementById("network_range").value || "192.168.0.0/24";
+    fetch(`/scan/?network_range=${encodeURIComponent(range)}`)
+        .then(res => res.json())
+        .then(data => {
+            const table = document.getElementById("devices");
+            table.innerHTML = "<tr><th>IP</th><th>Autorizado</th></tr>";
+            data.dispositivos_detectados.forEach(dev => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${dev.ip}</td>
+                        <td>${dev.autorizado ? "Sí" : "No"}</td>
+                    </tr>
+                `;
+            });
+        });
 }
 
-async function getAlerts() {
-    const res = await fetch('/alerts/');
-    const data = await res.json();
-    const table = document.getElementById('alerts');
-    table.innerHTML = "<tr><th>ID</th><th>Tipo</th><th>Hora</th><th>Descripción</th></tr>";
-
-    data.forEach(a => {
-        table.innerHTML += `<tr><td>${a.id}</td><td>${a.type}</td><td>${a.timestamp}</td><td>${a.description}</td></tr>`;
-    });
+// Obtener alertas
+function getAlerts() {
+    fetch("/alerts/")
+        .then(res => res.json())
+        .then(data => {
+            const table = document.getElementById("alerts");
+            table.innerHTML = "<tr><th>ID</th><th>Tipo</th><th>Hora</th><th>Descripción</th></tr>";
+            data.forEach(alert => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${alert.id}</td>
+                        <td>${alert.type}</td>
+                        <td>${alert.timestamp}</td>
+                        <td>${alert.description}</td>
+                    </tr>
+                `;
+            });
+        });
 }
 
-async function clearAlerts() {
-    if (confirm("¿Seguro que querés eliminar todas las alertas?")) {
-        await fetch('/alerts/clear', { method: 'DELETE' });
-        alert("Alertas eliminadas");
-        getAlerts();
-    }
+// Limpiar alertas
+function clearAlerts() {
+    fetch("/alerts/clear", { method: "DELETE" })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.mensaje);
+            getAlerts();
+        });
 }
 
-async function getWhitelist() {
-    const res = await fetch('/whitelist/');
-    const data = await res.json();
-    const table = document.getElementById('whitelist');
-    table.innerHTML = "<tr><th>ID</th><th>Nombre</th><th>IP</th></tr>";
-
-    data.whitelist.forEach(w => {
-        table.innerHTML += `<tr><td>${w.id}</td><td>${w.name}</td><td>${w.ip}</td></tr>`;
-    });
+// Obtener whitelist
+function getWhitelist() {
+    fetch("/whitelist/")
+        .then(res => res.json())
+        .then(data => {
+            const table = document.getElementById("whitelist");
+            table.innerHTML = "<tr><th>ID</th><th>Nombre</th><th>IP</th></tr>";
+            data.forEach(item => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.ip}</td>
+                    </tr>
+                `;
+            });
+        });
 }
 
-async function addToWhitelist() {
-    const name = document.getElementById('device_name').value;
-    const ip = document.getElementById('device_ip').value;
+// Agregar a whitelist
+function addToWhitelist() {
+    const name = document.getElementById("device_name").value;
+    const ip = document.getElementById("device_ip").value;
 
-    const data = new URLSearchParams();
-    data.append("nombre", name);
-    data.append("ip", ip);
-
-    const res = await fetch('/whitelist/agregar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: data
-    });
-
-    if (res.ok) {
-        alert("Dispositivo agregado a la whitelist");
-        document.getElementById('device_name').value = "";
-        document.getElementById('device_ip').value = "";
+    fetch("/whitelist/agregar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, ip })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.mensaje);
         getWhitelist();
-    } else {
-        alert("Error al agregar a whitelist");
-    }
+    });
 }
