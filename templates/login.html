@@ -23,6 +23,7 @@
 <div class="login-box">
     <h2>Guardián - Login</h2>
     <form method="post" action="/login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <div class="mb-3">
             <label>Usuario:</label>
             <input type="text" name="username" class="form-control" required>

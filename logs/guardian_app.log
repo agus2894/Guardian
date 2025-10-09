@@ -1,0 +1,24 @@
+2025-10-08 19:07:35 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:08:18 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 19:08:35 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:09:26 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 19:09:59 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:12:49 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 19:13:51 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:21:09 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 19:32:47 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:33:19 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 19:33:52 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:45:39 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 19:51:31 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 20:00:00 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 20:03:19 | guardian.app | INFO | {"message": "User admin logged out", "extra": {}}
+2025-10-08 20:12:47 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 20:15:20 | guardian.app | INFO | {"message": "User admin logged out", "extra": {}}
+2025-10-08 20:19:09 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 20:30:13 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 20:31:02 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 21:10:10 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 21:11:27 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}
+2025-10-08 21:25:09 | guardian.app | INFO | {"message": "Guardian system started successfully", "extra": {}}
+2025-10-08 21:27:18 | guardian.app | INFO | {"message": "Guardian system shutdown", "extra": {}}

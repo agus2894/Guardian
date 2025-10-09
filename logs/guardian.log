@@ -1,0 +1,15 @@
+2025-10-08 21:38:58 | INFO | {"category": "APP", "message": "Test OK", "timestamp": "2025-10-08T21:38:58.218274"}
+2025-10-08 21:39:48 | INFO | {"category": "APP", "message": "Network scheduler started", "timestamp": "2025-10-08T21:39:48.559474"}
+2025-10-08 21:39:48 | INFO | {"category": "APP", "message": "Guardian system started successfully", "timestamp": "2025-10-08T21:39:48.595924"}
+2025-10-08 21:39:48 | INFO | {"category": "APP", "message": "Metric recorded: system.startup", "timestamp": "2025-10-08T21:39:48.599311", "metric_type": "system", "action": "startup", "value": 1}
+2025-10-08 21:41:57 | INFO | {"category": "APP", "message": "Network scheduler stopped", "timestamp": "2025-10-08T21:41:57.931253"}
+2025-10-08 21:41:57 | INFO | {"category": "APP", "message": "Guardian system shutdown", "timestamp": "2025-10-08T21:41:57.934202"}
+2025-10-08 21:41:57 | INFO | {"category": "APP", "message": "Metric recorded: system.shutdown", "timestamp": "2025-10-08T21:41:57.935759", "metric_type": "system", "action": "shutdown", "value": 1}
+2025-10-08 21:42:16 | INFO | {"category": "APP", "message": "Network scheduler started", "timestamp": "2025-10-08T21:42:16.741438"}
+2025-10-08 21:42:16 | INFO | {"category": "APP", "message": "Guardian system started successfully", "timestamp": "2025-10-08T21:42:16.742151"}
+2025-10-08 21:42:16 | INFO | {"category": "APP", "message": "Metric recorded: system.startup", "timestamp": "2025-10-08T21:42:16.742689", "metric_type": "system", "action": "startup", "value": 1}
+2025-10-08 21:53:15 | INFO | {"category": "APP", "message": "Network scheduler stopped", "timestamp": "2025-10-08T21:53:15.303786"}
+2025-10-08 21:53:15 | INFO | {"category": "APP", "message": "Guardian system shutdown", "timestamp": "2025-10-08T21:53:15.309150"}
+2025-10-08 21:53:15 | INFO | {"category": "APP", "message": "Metric recorded: system.shutdown", "timestamp": "2025-10-08T21:53:15.313531", "metric_type": "system", "action": "shutdown", "value": 1}
+2025-10-08 22:08:11 | INFO | {"category": "APP", "message": "Test de logging funcional", "timestamp": "2025-10-08T22:08:11.173008"}
+2025-10-08 22:08:11 | INFO | {"category": "APP", "message": "Metric recorded: test.verification", "timestamp": "2025-10-08T22:08:11.202631", "metric_type": "test", "action": "verification", "value": 1, "status": "success"}

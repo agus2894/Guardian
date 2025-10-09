@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Guardián - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
@@ -13,61 +14,855 @@
     <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
 
     <style>
-        body { background: #352b5f; color: #ffffff; padding: 20px; }
-        h1 { color: #00ff99; margin-bottom: 20px; }
-        table { margin-top: 20px; }
+        /* Variables del tema claro */
+        :root {
+            --primary-blue: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --light-blue: #dbeafe;
+            --dark-gray: #1f2937;
+            --medium-gray: #374151;
+            --light-gray: #f8fafc;
+            --accent-green: #10b981;
+            --text-dark: #111827;
+            --text-light: #6b7280;
+            --text-muted: #9ca3af;
+            --text-code: #1e40af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-gradient-start: #dbeafe;
+            --bg-gradient-end: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(30, 58, 138, 0.1);
+        }
+        
+        /* Variables del tema oscuro */
+        [data-theme="dark"] {
+            --primary-blue: #3b82f6;
+            --secondary-blue: #60a5fa;
+            --light-blue: #1e3a8a;
+            --dark-gray: #374151;
+            --medium-gray: #6b7280;
+            --light-gray: #1f2937;
+            --accent-green: #34d399;
+            --text-dark: #f9fafb;
+            --text-light: #d1d5db;
+            --text-muted: #9ca3af;
+            --text-code: #93c5fd;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e293b;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Transiciones suaves para el cambio de tema */
+        *, *::before, *::after {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 50%, var(--bg-gradient-start) 100%); 
+            color: var(--text-dark); 
+            padding: 20px; 
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: var(--primary-blue) !important;
+            box-shadow: 0 2px 10px var(--shadow-color);
+        }
+        
+        h1 { 
+            color: var(--primary-blue); 
+            margin-bottom: 20px; 
+            font-weight: 700;
+            text-shadow: none;
+        }
+        
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow-color);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 15px var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        /* Toggle de tema */
+        .theme-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .theme-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .theme-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .theme-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .theme-slider {
+            background-color: var(--primary-blue);
+        }
+        
+        input:checked + .theme-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Iconos para el toggle */
+        .theme-slider i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            transition: opacity 0.3s ease;
+        }
+        
+        .theme-slider .fa-sun {
+            left: 8px;
+            color: #fbbf24;
+        }
+        
+        .theme-slider .fa-moon {
+            right: 8px;
+            color: #93c5fd;
+        }
+        
+        .theme-slider .fa-bell {
+            right: 8px;
+            color: #34d399;
+        }
+        
+        .theme-slider .fa-bell-slash {
+            left: 8px;
+            color: #ef4444;
+        }
+        
+        input:checked + .theme-slider .fa-sun {
+            opacity: 0.3;
+        }
+        
+        input:not(:checked) + .theme-slider .fa-moon {
+            opacity: 0.3;
+        }
+        
+        input:checked + .theme-slider .fa-bell-slash {
+            opacity: 0.3;
+        }
+        
+        input:not(:checked) + .theme-slider .fa-bell {
+            opacity: 0.3;
+        }
+        
+        /* Tablas */
+        .table {
+            color: var(--text-dark);
+        }
+        
+        .table-striped > tbody > tr:nth-of-type(odd) > td,
+        .table-striped > tbody > tr:nth-of-type(odd) > th {
+            background-color: var(--bg-secondary);
+        }
+        
+        .table-hover > tbody > tr:hover > td,
+        .table-hover > tbody > tr:hover > th {
+            background-color: var(--border-color);
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .status-online { background-color: var(--accent-green); }
+        .status-unauthorized { background-color: #ef4444; }
+        .status-warning { background-color: #f59e0b; }
+        
+        .btn-primary {
+            background-color: var(--secondary-blue);
+            border-color: var(--secondary-blue);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background-color: var(--accent-green);
+            border-color: var(--accent-green);
+            font-weight: 500;
+        }
+        
+        .btn-success:hover {
+            background-color: #059669;
+            border-color: #059669;
+        }
+        
+        .btn-outline-secondary {
+            color: var(--medium-gray);
+            border-color: var(--medium-gray);
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--medium-gray);
+            border-color: var(--medium-gray);
+            color: #ffffff;
+        }
+        
+        /* Modales */
+        .modal-content {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Badges */
+        .badge {
+            color: #ffffff;
+        }
+        
+        /* Forms */
+        .form-control {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+        }
+        
+        .form-control:focus {
+            background-color: var(--bg-primary);
+            border-color: var(--secondary-blue);
+            color: var(--text-dark);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        
+        /* Correcciones para modo oscuro - Textos y elementos específicos */
+        code {
+            color: var(--text-code) !important;
+            background-color: var(--bg-secondary);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .text-muted, small.text-muted {
+            color: var(--text-muted) !important;
+        }
+        
+        .text-info {
+            color: var(--secondary-blue) !important;
+        }
+        
+        .text-warning {
+            color: #fbbf24 !important;
+        }
+        
+        .text-success {
+            color: var(--accent-green) !important;
+        }
+        
+        .text-danger {
+            color: #ef4444 !important;
+        }
+        
+        /* Encabezados específicos */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-dark) !important;
+        }
+        
+        /* Labels y texto de formularios */
+        .form-label, label {
+            color: var(--text-dark) !important;
+        }
+        
+        /* Placeholders */
+        .form-control::placeholder {
+            color: var(--text-muted) !important;
+        }
+        
+        /* Links en tablas y elementos */
+        a {
+            color: var(--secondary-blue);
+        }
+        
+        a:hover {
+            color: var(--primary-blue);
+        }
+        
+        /* Toast específico para temas */
+        .toast {
+            background-color: var(--bg-primary) !important;
+            border: 1px solid var(--border-color);
+        }
+        
+        .toast-body {
+            color: var(--text-dark) !important;
+        }
+        
+        /* Lista de grupos específica */
+        .list-group-item {
+            background-color: var(--bg-primary) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-dark) !important;
+        }
+        
+        /* Corrección para texto en cards */
+        .card-body p, .card-body span, .card-body div {
+            color: var(--text-dark);
+        }
+        
+        /* Strong y bold */
+        strong, b {
+            color: var(--text-dark) !important;
+        }
+        
+        /* Correcciones adicionales específicas */
+        .stats-number {
+            color: var(--primary-blue) !important;
+        }
+        
+        /* Elementos de tabla específicos */
+        th {
+            color: var(--text-dark) !important;
+        }
+        
+        /* Dropdown y select */
+        .form-select {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+            color: var(--text-dark);
+        }
+        
+        /* Elementos de navegación */
+        .nav-link {
+            color: var(--text-dark) !important;
+        }
+        
+        /* Texto en badges específicos */
+        .badge.bg-secondary {
+            background-color: var(--medium-gray) !important;
+            color: #ffffff !important;
+        }
+        
+        /* Tooltips y elementos flotantes */
+        .tooltip .tooltip-inner {
+            background-color: var(--bg-secondary);
+            color: var(--text-dark);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .loading.show {
+            display: inline-block;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .auto-refresh-badge {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            color: var(--primary-blue);
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #ffffff !important;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="d-flex justify-content-end mb-3">
-        <a href="/logout" class="btn btn-outline-light">Cerrar sesión</a>
-    </div>
-
-    <h1>Guardián - Dashboard</h1>
-
-    <div class="mb-3">
-        <label>Rango de red (ej: 192.168.0.0/24):</label>
-        <input type="text" id="network_range" class="form-control" placeholder="192.168.0.0/24">
-    </div>
-
-    <div class="mb-3">
-        <button class="btn btn-success" onclick="getScan()">Escanear Red</button>
-        <button class="btn btn-warning" onclick="getAlerts()">Ver Alertas</button>
-        <button class="btn btn-danger" onclick="clearAlerts()">Limpiar Alertas</button>
-        <button class="btn btn-info" onclick="getWhitelist()">Ver Whitelist</button>
-    </div>
-
-    <h2>Dispositivos Conectados</h2>
-    <table class="table table-dark table-striped" id="devices">
-        <tr><th>IP</th><th>Autorizado</th></tr>
-    </table>
-
-    <h2>Alertas</h2>
-    <table class="table table-dark table-striped" id="alerts">
-        <tr><th>ID</th><th>Tipo</th><th>Hora</th><th>Descripción</th></tr>
-    </table>
-
-    <h2>Whitelist</h2>
-    <table class="table table-dark table-striped" id="whitelist">
-        <tr><th>Nombre</th><th>IP</th></tr>
-    </table>
-
-    <h2>Agregar a Whitelist</h2>
-    <form onsubmit="addToWhitelist(); return false;">
-        <div class="mb-3">
-            <label>Nombre del dispositivo:</label>
-            <input type="text" id="device_name" class="form-control" required>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-shield-alt me-2"></i>Guardian
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#devices-section">
+                        <i class="fas fa-laptop me-1"></i>Dispositivos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#alerts-section">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Alertas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#scheduler-section">
+                        <i class="fas fa-clock me-1"></i>Programación
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#metrics-section">
+                        <i class="fas fa-chart-bar me-1"></i>Métricas
+                    </a>
+                </li>
+                <li class="nav-item d-flex align-items-center ms-3">
+                    <span class="text-white me-2">Tema:</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+                        <span class="theme-slider">
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                        </span>
+                    </label>
+                </li>
+                <li class="nav-item d-flex align-items-center ms-3">
+                    <span class="text-white me-2">Notificaciones:</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="notifications-toggle" onchange="toggleNotifications()">
+                        <span class="theme-slider">
+                            <i class="fas fa-bell-slash"></i>
+                            <i class="fas fa-bell"></i>
+                        </span>
+                    </label>
+                </li>
+            </ul>
         </div>
-        <div class="mb-3">
-            <label>IP:</label>
-            <input type="text" id="device_ip" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Agregar</button>
-    </form>
+    </div>
+</nav>
+
+<!-- Spacer for fixed navbar -->
+<div style="height: 80px;"></div>
+
+<!-- Toast Container -->
+<div class="toast-container"></div>
+
+<!-- Auto-refresh indicator -->
+<div class="auto-refresh-badge">
+    <span class="badge bg-info" id="refresh-status">
+        <i class="fas fa-sync-alt"></i> Auto-refresh: <span id="refresh-countdown">30</span>s
+    </span>
 </div>
 
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-shield-alt"></i> Guardián - Dashboard</h1>
+        <div>
+            <span class="badge" style="background-color: var(--medium-gray); color: white;">Usuario: {{ user }}</span>
+            <a href="/logout" class="btn btn-outline-secondary ms-2">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <p class="stats-number text-success" id="stats-devices">0</p>
+                    <p class="mb-0">Dispositivos Detectados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <p class="stats-number text-warning" id="stats-alerts">0</p>
+                    <p class="mb-0">Alertas Activas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <p class="stats-number text-info" id="stats-whitelist">0</p>
+                    <p class="mb-0">Dispositivos Autorizados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <p class="stats-number text-danger" id="stats-unauthorized">0</p>
+                    <p class="mb-0">No Autorizados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de escaneo -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-network-wired"></i> Control de Red</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Rango de red (ej: 192.168.0.0/24):</label>
+                    <input type="text" id="network_range" class="form-control" placeholder="192.168.0.0/24" value="192.168.0.0/24">
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-success" onclick="getScan()">
+                            <i class="fas fa-search btn-icon"></i>
+                            <span class="loading" id="scan-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            Escanear Red
+                        </button>
+                        <button class="btn btn-info" onclick="toggleAutoRefresh()">
+                            <i class="fas fa-sync-alt btn-icon"></i>
+                            <span id="auto-refresh-text">Activar Auto-refresh</span>
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="requestNotificationPermission()" id="notification-btn" title="Activar notificaciones push">
+                            <i class="fas fa-bell btn-icon"></i>
+                            <span id="notification-text">Notificaciones</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de scheduler automático -->
+    <div class="card" id="scheduler-section">
+        <div class="card-header">
+            <h5><i class="fas fa-clock"></i> Escaneo Automático</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div id="scheduler-status" class="mb-3">
+                        <span class="badge bg-secondary">Estado: Cargando...</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Intervalo (minutos):</label>
+                            <input type="number" id="scan_interval" class="form-control" value="30" min="1" max="1440">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Red a monitorear:</label>
+                            <input type="text" id="scheduled_network_range" class="form-control" placeholder="192.168.0.0/24" value="192.168.0.0/24">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button class="btn btn-success" onclick="startScheduler()">
+                            <i class="fas fa-play btn-icon"></i>Iniciar Automático
+                        </button>
+                        <button class="btn btn-warning" onclick="stopScheduler()">
+                            <i class="fas fa-stop btn-icon"></i>Detener Automático
+                        </button>
+                        <button class="btn btn-primary" onclick="scanNow()">
+                            <i class="fas fa-bolt btn-icon"></i>Escanear Ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-cogs"></i> Acciones</h5>
+        </div>
+        <div class="card-body">
+            <div class="btn-group" role="group">
+                <button class="btn btn-warning" onclick="getAlerts()">
+                    <i class="fas fa-exclamation-triangle btn-icon"></i>Ver Alertas
+                </button>
+                <button class="btn btn-danger" onclick="clearAlerts()">
+                    <i class="fas fa-trash btn-icon"></i>Limpiar Alertas
+                </button>
+                <button class="btn btn-info" onclick="getWhitelist()">
+                    <i class="fas fa-list btn-icon"></i>Ver Whitelist
+                </button>
+                <button class="btn btn-secondary" onclick="generateSecurityReport()">
+                    <i class="fas fa-file-pdf btn-icon"></i>Reporte PDF
+                </button>
+            </div>
+            <div class="btn-group mt-2" role="group">
+                <button class="btn btn-outline-primary" onclick="generateDeviceReport()">
+                    <i class="fas fa-network-wired btn-icon"></i>Reporte de Dispositivos
+                </button>
+                <button class="btn btn-outline-warning" onclick="generateAlertsReport()">
+                    <i class="fas fa-shield-alt btn-icon"></i>Reporte de Alertas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispositivos Conectados -->
+    <div class="card" id="devices-section">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-desktop"></i> Dispositivos Conectados</h5>
+            <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleDeviceView()">
+                    <i class="fas fa-table btn-icon"></i><span id="view-toggle-text">Vista Detallada</span>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Vista básica (por defecto) -->
+            <div id="basic-device-view">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="devices">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>IP</th>
+                                <th>MAC Address</th>
+                                <th>Autorizado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Vista detallada -->
+            <div id="detailed-device-view" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="devices-detailed">
+                        <thead>
+                            <tr>
+                                <th>IP</th>
+                                <th>MAC Address</th>
+                                <th>Nombre</th>
+                                <th>Detecciones</th>
+                                <th>Última Vista</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="card" id="alerts-section">
+        <div class="card-header">
+            <h5><i class="fas fa-exclamation-triangle"></i> Alertas de Seguridad</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="alerts">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Hora</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Whitelist -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-shield-alt"></i> Dispositivos Autorizados (Whitelist)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="whitelist">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>IP</th>
+                            <th>MAC</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métricas y Análisis -->
+    <div class="card" id="metrics-section">
+        <div class="card-header">
+            <h5><i class="fas fa-chart-line"></i> Métricas y Análisis</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div id="metrics-chart-container">
+                        <canvas id="metrics-chart" style="display: none;"></canvas>
+                        <div id="chart-placeholder" class="text-center p-4">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Haz clic en "Ver Métricas" para cargar los gráficos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button class="btn btn-info mb-2" onclick="loadMetrics()">
+                            <i class="fas fa-chart-bar btn-icon"></i>Ver Métricas
+                        </button>
+                        <button class="btn btn-warning mb-2" onclick="downloadLogs()">
+                            <i class="fas fa-download btn-icon"></i>Descargar Logs
+                        </button>
+                        <button class="btn btn-secondary mb-2" onclick="showNetworkStats()">
+                            <i class="fas fa-network-wired btn-icon"></i>Estadísticas de Red
+                        </button>
+                        <button class="btn btn-danger" onclick="cleanupData()">
+                            <i class="fas fa-broom btn-icon"></i>Limpiar Datos Antiguos
+                        </button>
+                    </div>
+                    
+                    <div id="network-stats" class="mt-3" style="display: none;">
+                        <h6>Estadísticas (24h)</h6>
+                        <div class="small">
+                            <div class="d-flex justify-content-between">
+                                <span>Dispositivos únicos:</span>
+                                <span id="stat-unique-devices">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Total detecciones:</span>
+                                <span id="stat-total-detections">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Alertas de intrusión:</span>
+                                <span id="stat-intrusion-alerts">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar a Whitelist -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-plus"></i> Agregar Dispositivo a Whitelist</h5>
+        </div>
+        <div class="card-body">
+            <form onsubmit="addToWhitelist(); return false;">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Nombre del dispositivo:</label>
+                        <input type="text" id="device_name" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">IP:</label>
+                        <input type="text" id="device_ip" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">MAC (opcional):</label>
+                        <input type="text" id="device_mac" class="form-control" placeholder="AA:BB:CC:DD:EE:FF">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus btn-icon"></i>Agregar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/dashboard.js"></script>
 
 </body>

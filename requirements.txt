@@ -1,5 +1,33 @@
-fastapi
-uvicorn
-python-dotenv
-jinja2
-python-nmap
+# Guardian Network Security System - Dependencies
+# Core web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Environment and configuration
+python-dotenv>=1.0.0
+
+# Templates and static files
+jinja2>=3.1.0
+
+# Network scanning
+python-nmap>=0.7.1
+
+# Authentication and security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+
+# Email notifications
+aiosmtplib>=3.0.0
+email-validator>=2.0.0
+
+# Scheduling
+apscheduler>=3.10.0
+
+# PDF generation
+reportlab>=4.0.0
+Pillow>=10.0.0
+
+# Development and testing (optional)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
