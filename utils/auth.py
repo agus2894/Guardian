@@ -1,3 +1,29 @@
+"""
+MÓDULO DE AUTENTICACIÓN Y SEGURIDAD
+===================================
+
+CONCEPTOS DE CIBERSEGURIDAD IMPLEMENTADOS:
+
+1. HASH DE CONTRASEÑAS (bcrypt):
+   - Las contraseñas nunca se almacenan en texto plano
+   - bcrypt incluye salt automático contra ataques rainbow table
+   - Resistente a ataques de fuerza bruta por su lentitud intencional
+
+2. TOKENS JWT (JSON Web Tokens):
+   - Autenticación sin estado (stateless)
+   - Tokens firmados digitalmente para prevenir falsificación
+   - Expiración automática para limitar ventana de ataque
+
+3. PROTECCIÓN CSRF:
+   - Tokens únicos para prevenir ataques Cross-Site Request Forgery
+   - Validación del origen de las peticiones
+
+4. GESTIÓN SEGURA DE SESIONES:
+   - Cookies seguras con httpOnly
+   - Tokens con tiempo de vida limitado
+   - Logout que invalida tokens
+"""
+
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -5,23 +31,39 @@ from passlib.context import CryptContext
 from fastapi import HTTPException, status, Cookie, Request
 import os
 
-# Configuración de seguridad
+# CONFIGURACIÓN DE SEGURIDAD
+# Clave secreta para firmar tokens JWT - CRÍTICA para la seguridad
 SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_muy_segura_aqui")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 120
+ALGORITHM = "HS256"  # Algoritmo de cifrado para JWT
+ACCESS_TOKEN_EXPIRE_MINUTES = 120  # Duración de sesión en minutos
 
+# CONTEXTO DE CIFRADO DE CONTRASEÑAS
+# bcrypt: Algoritmo de hash seguro con salt automático
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
-    """Verificar contraseña"""
+    """
+    VERIFICACIÓN SEGURA DE CONTRASEÑAS
+    - Compara contraseña en texto plano con hash almacenado
+    - bcrypt maneja automáticamente el salt y la verificación
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
-    """Generar hash de contraseña"""
+    """
+    GENERACIÓN DE HASH SEGURO
+    - Convierte contraseña a hash irreversible
+    - Incluye salt aleatorio único por contraseña
+    """
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """Crear token JWT"""
+    """
+    CREACIÓN DE TOKEN JWT
+    - Genera token firmado digitalmente
+    - Incluye información del usuario y tiempo de expiración
+    - No almacena información sensible en el token
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -43,17 +85,32 @@ def verify_token(token: str):
         return None
 
 def authenticate_user(username: str, password: str):
-    """Autenticar usuario"""
-    valid_user = os.getenv("GUARDIAN_USER")
-    valid_pass_hash = os.getenv("GUARDIAN_PASS_HASH")
+    """
+    AUTENTICACIÓN DE USUARIO
+    
+    Proceso de verificación:
+        1. Obtiene credenciales desde variables de entorno
+        2. Compara username proporcionado con el configurado
+        3. Verifica contraseña usando hash bcrypt o texto plano (demo)
+        4. Retorna True si las credenciales son válidas
+    
+    Configuración soportada:
+        - ADMIN_USERNAME/ADMIN_PASSWORD: Para demostración académica
+        - GUARDIAN_USER/GUARDIAN_PASS: Compatibilidad legacy
+        - Hash de contraseñas para producción
+    """
+    # CONFIGURACIÓN PRINCIPAL (Preferida)
+    valid_user = os.getenv("ADMIN_USERNAME") or os.getenv("GUARDIAN_USER")
+    valid_pass_hash = os.getenv("ADMIN_PASSWORD_HASH") or os.getenv("GUARDIAN_PASS_HASH")
     
     if not valid_pass_hash:
-        # Si no hay hash configurado, usar la contraseña plana (migración)
-        valid_pass_plain = os.getenv("GUARDIAN_PASS")
+        # MODO DEMOSTRACIÓN: Contraseña en texto plano
+        # ⚠️ SOLO PARA FINES EDUCATIVOS - NO USAR EN PRODUCCIÓN
+        valid_pass_plain = os.getenv("ADMIN_PASSWORD") or os.getenv("GUARDIAN_PASS")
         if username == valid_user and password == valid_pass_plain:
             return True
     else:
-        # Usar hash para verificación segura
+        # MODO PRODUCCIÓN: Verificación con hash seguro
         if username == valid_user and verify_password(password, valid_pass_hash):
             return True
     

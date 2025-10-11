@@ -294,7 +294,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## 🔗 **Contacto**
 
-**Desarrollador:** Agustín  
+**Desarrollador:** Agustín Lamas
 **GitHub:** [agus2894](https://github.com/agus2894)  
 **Proyecto enfocado en:** Ciberseguridad y Network Security
 
