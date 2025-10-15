@@ -26,7 +26,6 @@ async def scan(network_range: str = Query("192.168.0.0/24"), current_user: str =
             create_alert("Intrusión", desc)
             alertas_generadas.append(desc)
 
-        # Actualizar información del dispositivo para la respuesta
         d["authorized"] = autorizado
 
     return {

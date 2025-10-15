@@ -16,16 +16,15 @@ async def get_devices_detailed(
     hours: int = Query(24, ge=1, le=168),
     current_user: str = Depends(get_current_user)
 ):
-    """Obtener información detallada de dispositivos"""
+
     try:
         since_time = (datetime.now() - timedelta(hours=hours)).isoformat()
-        
+
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            
-            # Obtener dispositivos únicos con su información más reciente
+
             cursor.execute('''
-                SELECT 
+                SELECT
                     d.ip,
                     d.mac,
                     d.last_seen,
@@ -38,20 +37,20 @@ async def get_devices_detailed(
                 GROUP BY d.ip, d.mac
                 ORDER BY d.last_seen DESC
             ''', (since_time,))
-            
+
             devices = cursor.fetchall()
-            
+
             # Obtener estadísticas básicas
             cursor.execute('''
-                SELECT 
+                SELECT
                     COUNT(DISTINCT ip) as unique_ips,
                     COUNT(DISTINCT mac) as unique_macs
-                FROM devices 
+                FROM devices
                 WHERE last_seen > ?
             ''', (since_time,))
-            
+
             stats = cursor.fetchone()
-        
+
         device_list = [
             {
                 "ip": device[0],
@@ -72,6 +71,6 @@ async def get_devices_detailed(
                 "time_range_hours": hours
             }
         })
-        
+
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)

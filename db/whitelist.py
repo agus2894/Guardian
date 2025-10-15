@@ -1,19 +1,19 @@
 from db.database import get_db_connection
 
 def is_device_authorized(ip, mac=None):
-    """Verifica si un dispositivo está autorizado por IP o MAC"""
+
     ip = ip.strip() if ip else ""
     mac = mac.strip() if mac else ""
-    
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
+
         # Buscar por IP o MAC
         if mac and mac != "Desconocida":
             cursor.execute("SELECT id FROM whitelist WHERE TRIM(ip) = ? OR TRIM(mac) = ?", (ip, mac))
         else:
             cursor.execute("SELECT id FROM whitelist WHERE TRIM(ip) = ?", (ip,))
-        
+
         result = cursor.fetchone()
     return result is not None
 
@@ -26,7 +26,7 @@ def get_whitelist():
         cursor = conn.cursor()
         cursor.execute("SELECT id, name, ip, mac FROM whitelist")
         results = cursor.fetchall()
-    
+
     return [
         {
             "id": row[0],
@@ -41,7 +41,7 @@ def add_to_whitelist(name, ip, mac=None):
     name = name.strip() if name else ""
     ip = ip.strip() if ip else ""
     mac = mac.strip() if mac else ""
-    
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(

@@ -8,7 +8,7 @@ router = APIRouter(prefix="/scheduler", tags=["Scheduler"])
 
 @router.get("/status")
 async def get_scheduler_status(current_user: str = Depends(get_current_user)):
-    """Obtener estado del scheduler"""
+
     status = simple_scheduler.get_status()
     return JSONResponse(content=status)
 
@@ -20,14 +20,14 @@ async def start_scheduled_scan(
 ):
     """Iniciar escaneo programado"""
     try:
-        if interval_minutes < 1 or interval_minutes > 1440:  # Máximo 24 horas
+        if interval_minutes < 1 or interval_minutes > 1440:
             raise HTTPException(status_code=400, detail="Intervalo debe ser entre 1 y 1440 minutos")
-        
+
         if not network_range:
             network_range = os.getenv("DEFAULT_NETWORK_RANGE", "192.168.0.0/24")
-        
+
         await simple_scheduler.add_scheduled_scan(interval_minutes, network_range)
-        
+
         return JSONResponse(content={
             "mensaje": f"Escaneo programado iniciado cada {interval_minutes} minutos",
             "network_range": network_range,
@@ -54,9 +54,9 @@ async def scan_now(
     try:
         if not network_range:
             network_range = os.getenv("DEFAULT_NETWORK_RANGE", "192.168.0.0/24")
-        
+
         await simple_scheduler._perform_scan(network_range)
         return JSONResponse(content={"mensaje": "Escaneo ejecutado exitosamente"})
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error en escaneo: {str(e)}")

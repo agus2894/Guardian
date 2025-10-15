@@ -8,7 +8,7 @@ def save_device(ip, mac=""):
 
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
+
         # Buscar si el dispositivo ya fue registrado
         cursor.execute("SELECT id FROM devices WHERE ip = ?", (ip,))
         result = cursor.fetchone()

@@ -6,48 +6,46 @@ from datetime import datetime
 import asyncio
 
 async def send_email_notification(subject: str, message: str, to_email: str = None):
-    """Enviar notificación por email"""
-    
-    # Configuración del servidor SMTP desde variables de entorno
+
     smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     smtp_port = int(os.getenv("SMTP_PORT", 587))
     smtp_username = os.getenv("SMTP_USERNAME")
     smtp_password = os.getenv("SMTP_PASSWORD")
     from_email = os.getenv("FROM_EMAIL", smtp_username)
-    
+
     if not to_email:
         to_email = os.getenv("NOTIFICATION_EMAIL")
-    
+
     if not all([smtp_username, smtp_password, to_email]):
         print("Configuración de email incompleta. Notificación no enviada.")
         return False
-    
+
     try:
         # Crear mensaje
         msg = MIMEMultipart()
         msg['From'] = from_email
         msg['To'] = to_email
         msg['Subject'] = f"[Guardián] {subject}"
-        
+
         # Cuerpo del mensaje con estilo
         html_body = f"""
         <html>
-        <body style="font-family: Arial, sans-serif; color: #333;">
-            <div style="background-color: #f4f4f4; padding: 20px;">
+        <body style="font-family: Arial, sans-serif; color:
+            <div style="background-color:
                 <div style="background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                    <h2 style="color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 10px;">
+                    <h2 style="color:
                         🛡️ Alerta de Seguridad - Guardián
                     </h2>
                     <p style="font-size: 16px; line-height: 1.6;">
                         <strong>Fecha y Hora:</strong> {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
                     </p>
-                    <div style="background-color: #ffe6e6; padding: 15px; border-left: 4px solid #ff4444; margin: 20px 0;">
+                    <div style="background-color:
                         <p style="margin: 0; font-size: 16px;">
                             <strong>Descripción:</strong><br>
                             {message}
                         </p>
                     </div>
-                    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+                    <p style="font-size: 14px; color:
                         Este mensaje fue generado automáticamente por el sistema Guardián de monitoreo de red.
                         <br>
                         Por favor, revise su red inmediatamente y tome las medidas necesarias.
@@ -57,9 +55,9 @@ async def send_email_notification(subject: str, message: str, to_email: str = No
         </body>
         </html>
         """
-        
+
         msg.attach(MIMEText(html_body, 'html'))
-        
+
         # Enviar email
         await aiosmtplib.send(
             msg,
@@ -69,10 +67,10 @@ async def send_email_notification(subject: str, message: str, to_email: str = No
             username=smtp_username,
             password=smtp_password,
         )
-        
+
         print(f"Notificación por email enviada a {to_email}")
         return True
-        
+
     except Exception as e:
         print(f"Error al enviar email: {e}")
         return False
@@ -89,12 +87,12 @@ def send_notification_sync(subject: str, message: str, to_email: str = None):
 async def send_intrusion_alert(ip: str, mac: str = None):
     """Enviar alerta específica de intrusión"""
     subject = "🚨 INTRUSIÓN DETECTADA"
-    
+
     if mac and mac != "Desconocida":
         message = f"Se ha detectado un dispositivo no autorizado en su red:\n\nIP: {ip}\nMAC: {mac}\n\nRevise inmediatamente su red y tome las medidas de seguridad necesarias."
     else:
         message = f"Se ha detectado un dispositivo no autorizado en su red:\n\nIP: {ip}\nMAC: No disponible\n\nRevise inmediatamente su red y tome las medidas de seguridad necesarias."
-    
+
     return await send_email_notification(subject, message)
 
 def send_intrusion_alert_sync(ip: str, mac: str = None):
