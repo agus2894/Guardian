@@ -8,7 +8,6 @@ def is_device_authorized(ip, mac=None):
     with get_db_connection() as conn:
         cursor = conn.cursor()
 
-        # Buscar por IP o MAC
         if mac and mac != "Desconocida":
             cursor.execute("SELECT id FROM whitelist WHERE TRIM(ip) = ? OR TRIM(mac) = ?", (ip, mac))
         else:
@@ -18,7 +17,6 @@ def is_device_authorized(ip, mac=None):
     return result is not None
 
 def is_ip_authorized(ip):
-    """Mantener compatibilidad con código existente"""
     return is_device_authorized(ip)
 
 def get_whitelist():

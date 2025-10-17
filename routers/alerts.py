@@ -1,5 +1,3 @@
-# routers/alerts.py
-
 from fastapi import APIRouter, Depends
 from utils.auth import get_current_user
 from db.database import get_db_connection

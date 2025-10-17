@@ -1,4 +1,3 @@
-# routers/scan.py
 from fastapi import APIRouter, Query, Depends
 from utils.scanner import scan_network
 from utils.auth import get_current_user
@@ -18,7 +17,6 @@ async def scan(network_range: str = Query("192.168.0.0/24"), current_user: str =
         mac = d["mac"]
         autorizado = is_device_authorized(ip, mac)
 
-        # Guardar dispositivo con MAC address
         save_device(ip, mac)
 
         if not autorizado:

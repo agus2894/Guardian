@@ -185,43 +185,7 @@ function checkForNewThreats(devices) {
     lastKnownDevices = currentDevices;
 }
 
-// === FUNCIONES DE TEMA ===
-function toggleTheme() {
-    const toggle = document.getElementById('theme-toggle');
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    
-    if (toggle.checked) {
-        // Cambiar a tema oscuro
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-        showToast('Tema oscuro activado', 'info');
-    } else {
-        // Cambiar a tema claro
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
-        showToast('Tema claro activado', 'info');
-    }
-}
-
-function initializeTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    const toggle = document.getElementById('theme-toggle');
-    
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        if (toggle) toggle.checked = true;
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-        if (toggle) toggle.checked = false;
-    }
-}
-
-// Inicialización cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tema antes que nada
-    initializeTheme();
-    
-    // Inicializar notificaciones
     initializeNotifications();
     
     // Cargar datos iniciales

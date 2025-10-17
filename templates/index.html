@@ -15,12 +15,10 @@
 
     <style>
         /* 
-        SISTEMA DE TEMAS - VARIABLES CSS PERSONALIZADAS
-        Permite cambio dinámico entre tema claro y oscuro
-        Mejora la accesibilidad y experiencia de usuario
+        VARIABLES CSS PERSONALIZADAS
+        Estilo limpio y profesional para Guardian
         */
         
-        /* Variables del tema claro */
         :root {
             --primary-blue: #1e3a8a;
             --secondary-blue: #3b82f6;
@@ -42,29 +40,7 @@
             --shadow-hover: rgba(30, 58, 138, 0.1);
         }
         
-        /* Variables del tema oscuro */
-        [data-theme="dark"] {
-            --primary-blue: #3b82f6;
-            --secondary-blue: #60a5fa;
-            --light-blue: #1e3a8a;
-            --dark-gray: #374151;
-            --medium-gray: #6b7280;
-            --light-gray: #1f2937;
-            --accent-green: #34d399;
-            --text-dark: #f9fafb;
-            --text-light: #d1d5db;
-            --text-muted: #9ca3af;
-            --text-code: #93c5fd;
-            --bg-primary: #111827;
-            --bg-secondary: #1f2937;
-            --bg-gradient-start: #0f172a;
-            --bg-gradient-end: #1e293b;
-            --border-color: #374151;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --shadow-hover: rgba(59, 130, 246, 0.2);
-        }
-        
-        /* Transiciones suaves para el cambio de tema */
+        /* Transiciones suaves */
         *, *::before, *::after {
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -109,7 +85,7 @@
             color: var(--text-dark);
         }
         
-        /* Toggle de tema */
+        /* Toggle para notificaciones */
         .theme-toggle {
             position: relative;
             display: inline-block;
@@ -155,23 +131,12 @@
             transform: translateX(26px);
         }
         
-        /* Iconos para el toggle */
         .theme-slider i {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
             font-size: 12px;
             transition: opacity 0.3s ease;
-        }
-        
-        .theme-slider .fa-sun {
-            left: 8px;
-            color: #fbbf24;
-        }
-        
-        .theme-slider .fa-moon {
-            right: 8px;
-            color: #93c5fd;
         }
         
         .theme-slider .fa-bell {
@@ -182,14 +147,6 @@
         .theme-slider .fa-bell-slash {
             left: 8px;
             color: #ef4444;
-        }
-        
-        input:checked + .theme-slider .fa-sun {
-            opacity: 0.3;
-        }
-        
-        input:not(:checked) + .theme-slider .fa-moon {
-            opacity: 0.3;
         }
         
         input:checked + .theme-slider .fa-bell-slash {
@@ -294,7 +251,6 @@
             box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
         }
         
-        /* Correcciones para modo oscuro - Textos y elementos específicos */
         code {
             color: var(--text-code) !important;
             background-color: var(--bg-secondary);
@@ -346,7 +302,6 @@
             color: var(--primary-blue);
         }
         
-        /* Toast específico para temas */
         .toast {
             background-color: var(--bg-primary) !important;
             border: 1px solid var(--border-color);
@@ -499,16 +454,6 @@
                     <a class="nav-link" href="#metrics-section">
                         <i class="fas fa-chart-bar me-1"></i>Métricas
                     </a>
-                </li>
-                <li class="nav-item d-flex align-items-center ms-3">
-                    <span class="text-white me-2">Tema:</span>
-                    <label class="theme-toggle">
-                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
-                        <span class="theme-slider">
-                            <i class="fas fa-sun"></i>
-                            <i class="fas fa-moon"></i>
-                        </span>
-                    </label>
                 </li>
                 <li class="nav-item d-flex align-items-center ms-3">
                     <span class="text-white me-2">Notificaciones:</span>

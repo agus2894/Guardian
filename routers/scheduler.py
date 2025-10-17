@@ -18,7 +18,6 @@ async def start_scheduled_scan(
     network_range: str = Form(None),
     current_user: str = Depends(get_current_user)
 ):
-    """Iniciar escaneo programado"""
     try:
         if interval_minutes < 1 or interval_minutes > 1440:
             raise HTTPException(status_code=400, detail="Intervalo debe ser entre 1 y 1440 minutos")

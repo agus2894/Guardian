@@ -37,13 +37,11 @@ class SimpleNetworkScheduler:
         if not network_range:
             network_range = self.default_network
 
-        # Remover job anterior si existe
         try:
             self.scheduler.remove_job('network_scan')
         except:
             pass
 
-        # Agregar nuevo job
         self.scheduler.add_job(
             self._perform_scan,
             'interval',
@@ -74,7 +72,6 @@ class SimpleNetworkScheduler:
             self.scan_count += 1
             simple_logger.network(f"Starting scheduled scan #{self.scan_count}")
 
-            # Ejecutar escaneo
             devices = scan_network(network_range)
             alerts_generated = 0
 
@@ -82,10 +79,8 @@ class SimpleNetworkScheduler:
                 ip = device["ip"]
                 mac = device.get("mac", "")
 
-                # Guardar dispositivo
                 save_device(ip, mac)
 
-                # Verificar autorización
                 if not is_device_authorized(ip, mac):
                     description = f"Dispositivo NO autorizado detectado - IP: {ip}, MAC: {mac}"
                     create_alert("Intrusión", description)
@@ -115,5 +110,4 @@ class SimpleNetworkScheduler:
             "next_run": jobs[0].next_run_time.isoformat() if jobs else None
         }
 
-# Instancia global simplificada
 simple_scheduler = SimpleNetworkScheduler()

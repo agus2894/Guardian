@@ -5,13 +5,10 @@ from db.whitelist import get_whitelist, add_to_whitelist
 
 router = APIRouter(prefix="/whitelist", tags=["Whitelist"])
 
-# Obtener todos los dispositivos permitidos
 @router.get("/")
 async def listar_whitelist(current_user: str = Depends(get_current_user)):
     data = get_whitelist()
     return {"whitelist": data}
-
-# Agregar un nuevo dispositivo a la whitelist
 @router.post("/agregar")
 async def agregar_dispositivo(
     nombre: str = Form(...),

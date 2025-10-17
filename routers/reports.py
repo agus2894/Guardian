@@ -16,41 +16,27 @@ from typing import Optional
 router = APIRouter(prefix="/reports", tags=["Reportes"])
 
 def create_pdf_header(canvas, doc):
-
     canvas.saveState()
-
-    # Logo/Título en el encabezado
     canvas.setFont('Helvetica-Bold', 16)
     canvas.setFillColor(colors.HexColor('#1e3a8a'))
     canvas.drawString(50, 750, "Guardian - Sistema de Monitoreo de Red")
-
-    # Línea separadora
     canvas.setStrokeColor(colors.HexColor('#3b82f6'))
     canvas.setLineWidth(2)
     canvas.line(50, 740, 550, 740)
-
-    # Fecha de generación
     canvas.setFont('Helvetica', 10)
     canvas.setFillColor(colors.black)
     canvas.drawRightString(550, 750, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-
     canvas.restoreState()
 
 def create_pdf_footer(canvas, doc):
-    """Crear pie de página"""
     canvas.saveState()
-
-    # Línea separadora
     canvas.setStrokeColor(colors.HexColor('#e5e7eb'))
     canvas.setLineWidth(1)
     canvas.line(50, 50, 550, 50)
-
-    # Información del pie
     canvas.setFont('Helvetica', 8)
     canvas.setFillColor(colors.HexColor('#6b7280'))
     canvas.drawString(50, 35, "Guardian Security Report - Confidencial")
     canvas.drawRightString(550, 35, f"Página {doc.page}")
-
     canvas.restoreState()
 
 @router.get("/security-report")
@@ -58,12 +44,9 @@ async def generate_security_report(
     hours: int = 24,
     current_user: str = Depends(get_current_user)
 ):
-    """Generar reporte de seguridad completo"""
     try:
-        # Buffer para el PDF
         buffer = io.BytesIO()
 
-        # Crear documento PDF
         doc = SimpleDocTemplate(
             buffer,
             pagesize=A4,
@@ -73,7 +56,6 @@ async def generate_security_report(
             bottomMargin=80
         )
 
-        # Estilos
         styles = getSampleStyleSheet()
         title_style = ParagraphStyle(
             'CustomTitle',
@@ -96,18 +78,15 @@ async def generate_security_report(
             backColor=colors.HexColor('#f8fafc')
         )
 
-        # Contenido del documento
         story = []
 
-        # Título principal
-        story.append(Paragraph("📊 Reporte de Seguridad de Red", title_style))
+        story.append(Paragraph("REPORTE DE SEGURIDAD DE RED - GUARDIAN", title_style))
         story.append(Spacer(1, 20))
 
-        # Información del reporte
         info_data = [
-            ['Período del Reporte:', f'Últimas {hours} horas'],
+            ['Periodo del Reporte:', f'Ultimas {hours} horas'],
             ['Generado por:', current_user],
-            ['Fecha:', datetime.now().strftime('%d de %B de %Y')],
+            ['Fecha:', datetime.now().strftime('%d/%m/%Y')],
             ['Hora:', datetime.now().strftime('%H:%M:%S')]
         ]
 
@@ -126,44 +105,47 @@ async def generate_security_report(
         story.append(info_table)
         story.append(Spacer(1, 30))
 
-        # Obtener datos de la base de datos
         conn = sqlite3.connect("guardian.db")
         cursor = conn.cursor()
 
         since_time = (datetime.now() - timedelta(hours=hours)).isoformat()
 
-        # === RESUMEN EJECUTIVO ===
-        story.append(Paragraph("🎯 Resumen Ejecutivo", subtitle_style))
+        story.append(Paragraph("Resumen Ejecutivo", subtitle_style))
+        
+        try:
+            cursor.execute('''
+                SELECT
+                    COUNT(DISTINCT ip) as total_devices,
+                    COUNT(DISTINCT CASE WHEN w.id IS NOT NULL THEN d.ip END) as authorized_devices,
+                    COUNT(DISTINCT CASE WHEN w.id IS NULL THEN d.ip END) as unauthorized_devices
+                FROM devices d
+                LEFT JOIN whitelist w ON (d.ip = w.ip OR d.mac = w.mac)
+                WHERE d.last_seen > ?
+            ''', (since_time,))
 
-        # Estadísticas generales
-        cursor.execute('''
-            SELECT
-                COUNT(DISTINCT ip) as total_devices,
-                COUNT(DISTINCT CASE WHEN w.id IS NOT NULL THEN d.ip END) as authorized_devices,
-                COUNT(DISTINCT CASE WHEN w.id IS NULL THEN d.ip END) as unauthorized_devices
-            FROM devices d
-            LEFT JOIN whitelist w ON (d.ip = w.ip OR d.mac = w.mac)
-            WHERE d.last_seen > ?
-        ''', (since_time,))
+            stats = cursor.fetchone()
+            if stats:
+                total_devices, authorized_devices, unauthorized_devices = stats
+            else:
+                total_devices, authorized_devices, unauthorized_devices = 0, 0, 0
 
-        stats = cursor.fetchone()
-        total_devices, authorized_devices, unauthorized_devices = stats
+            cursor.execute('''
+                SELECT COUNT(*) FROM alerts
+                WHERE timestamp > ?
+            ''', (since_time,))
 
-        # Alertas
-        cursor.execute('''
-            SELECT COUNT(*) FROM alerts
-            WHERE timestamp > ?
-        ''', (since_time,))
+            alerts_result = cursor.fetchone()
+            total_alerts = alerts_result[0] if alerts_result else 0
+            
+        except sqlite3.Error as db_error:
+            total_devices, authorized_devices, unauthorized_devices, total_alerts = 0, 0, 0, 0
 
-        total_alerts = cursor.fetchone()[0]
-
-        # Crear tabla de resumen
         summary_data = [
-            ['📊 MÉTRICA', '📈 VALOR', '⚠️ ESTADO'],
-            ['Dispositivos Detectados', str(total_devices), '✅ Normal' if total_devices < 20 else '⚠️ Alto'],
-            ['Dispositivos Autorizados', str(authorized_devices), '✅ Bien'],
-            ['Dispositivos No Autorizados', str(unauthorized_devices), '✅ Seguro' if unauthorized_devices == 0 else '🚨 ATENCIÓN'],
-            ['Alertas Generadas', str(total_alerts), '✅ Normal' if total_alerts < 5 else '⚠️ Revisar']
+            ['METRICA', 'VALOR', 'ESTADO'],
+            ['Dispositivos Detectados', str(total_devices), 'Normal' if total_devices < 20 else 'Alto'],
+            ['Dispositivos Autorizados', str(authorized_devices), 'Bien'],
+            ['Dispositivos No Autorizados', str(unauthorized_devices), 'Seguro' if unauthorized_devices == 0 else 'ATENCION'],
+            ['Alertas Generadas', str(total_alerts), 'Normal' if total_alerts < 5 else 'Revisar']
         ]
 
         summary_table = Table(summary_data, colWidths=[2.5*inch, 1.5*inch, 1.5*inch])
@@ -183,27 +165,29 @@ async def generate_security_report(
         story.append(summary_table)
         story.append(Spacer(1, 20))
 
-        # === DISPOSITIVOS DETECTADOS ===
-        story.append(Paragraph("💻 Dispositivos Detectados", subtitle_style))
+        story.append(Paragraph("Dispositivos Detectados", subtitle_style))
 
-        cursor.execute('''
-            SELECT
-                d.ip,
-                d.mac,
-                d.last_seen,
-                CASE WHEN w.id IS NOT NULL THEN 'SÍ' ELSE 'NO' END as authorized,
-                w.name as whitelist_name
-            FROM devices d
-            LEFT JOIN whitelist w ON (d.ip = w.ip OR d.mac = w.mac)
-            WHERE d.last_seen > ?
-            ORDER BY d.last_seen DESC
-            LIMIT 20
-        ''', (since_time,))
+        try:
+            cursor.execute('''
+                SELECT
+                    d.ip,
+                    d.mac,
+                    d.last_seen,
+                    CASE WHEN w.id IS NOT NULL THEN 'SI' ELSE 'NO' END as authorized,
+                    w.name as whitelist_name
+                FROM devices d
+                LEFT JOIN whitelist w ON (d.ip = w.ip OR d.mac = w.mac)
+                WHERE d.last_seen > ?
+                ORDER BY d.last_seen DESC
+                LIMIT 20
+            ''', (since_time,))
 
-        devices = cursor.fetchall()
+            devices = cursor.fetchall()
+        except sqlite3.Error:
+            devices = []
 
         if devices:
-            device_data = [['IP Address', 'MAC Address', 'Última Conexión', 'Autorizado', 'Nombre']]
+            device_data = [['IP Address', 'MAC Address', 'Ultima Conexion', 'Autorizado', 'Nombre']]
 
             for device in devices:
                 ip, mac, last_seen, authorized, name = device
@@ -229,7 +213,6 @@ async def generate_security_report(
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ]))
 
-            # Colorear filas según autorización
             for i, device in enumerate(devices, 1):
                 if device[3] == 'NO':  # No autorizado
                     device_table.setStyle(TableStyle([
@@ -248,18 +231,20 @@ async def generate_security_report(
 
         story.append(PageBreak())
 
-        # === ALERTAS DE SEGURIDAD ===
-        story.append(Paragraph("🚨 Alertas de Seguridad", subtitle_style))
+        story.append(Paragraph("Alertas de Seguridad", subtitle_style))
 
-        cursor.execute('''
-            SELECT id, type, timestamp, description
-            FROM alerts
-            WHERE timestamp > ?
-            ORDER BY timestamp DESC
-            LIMIT 15
-        ''', (since_time,))
+        try:
+            cursor.execute('''
+                SELECT id, type, timestamp, description
+                FROM alerts
+                WHERE timestamp > ?
+                ORDER BY timestamp DESC
+                LIMIT 15
+            ''', (since_time,))
 
-        alerts = cursor.fetchall()
+            alerts = cursor.fetchall()
+        except sqlite3.Error:
+            alerts = []
 
         if alerts:
             alert_data = [['ID', 'Tipo', 'Fecha/Hora', 'Descripción']]
@@ -290,11 +275,10 @@ async def generate_security_report(
 
             story.append(alert_table)
         else:
-            story.append(Paragraph("✅ No se generaron alertas de seguridad en el período especificado.", styles['Normal']))
+            story.append(Paragraph("No se generaron alertas de seguridad en el periodo especificado.", styles['Normal']))
 
         conn.close()
 
-        # Agregar línea final
         story.append(Spacer(1, 30))
         story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#cccccc')))
         story.append(Spacer(1, 10))
@@ -303,15 +287,12 @@ async def generate_security_report(
             ParagraphStyle('Footer', fontSize=8, textColor=colors.HexColor('#666666'))
         ))
 
-        # Construir PDF
         doc.build(story, onFirstPage=create_pdf_header, onLaterPages=create_pdf_header)
 
-        # Obtener el PDF del buffer
         buffer.seek(0)
         pdf_data = buffer.getvalue()
         buffer.close()
 
-        # Generar nombre de archivo
         filename = f"guardian_security_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
 
         return Response(
@@ -322,6 +303,47 @@ async def generate_security_report(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando reporte: {str(e)}")
+
+@router.get("/test-report")
+async def generate_test_report(current_user: str = Depends(get_current_user)):
+    """Generar reporte de prueba simple"""
+    try:
+        buffer = io.BytesIO()
+        
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=50,
+            leftMargin=50,
+            topMargin=100,
+            bottomMargin=80
+        )
+        
+        styles = getSampleStyleSheet()
+        story = []
+        
+        story.append(Paragraph("Reporte de Prueba - Guardian", styles['Title']))
+        story.append(Spacer(1, 20))
+        story.append(Paragraph("Este es un reporte de prueba para verificar que ReportLab funciona correctamente.", styles['Normal']))
+        story.append(Spacer(1, 20))
+        story.append(Paragraph(f"Generado el: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", styles['Normal']))
+        
+        doc.build(story)
+        
+        buffer.seek(0)
+        pdf_data = buffer.getvalue()
+        buffer.close()
+        
+        filename = f"guardian_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        
+        return Response(
+            content=pdf_data,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en reporte de prueba: {str(e)}")
 
 @router.get("/network-report")
 async def generate_network_report(current_user: str = Depends(get_current_user)):

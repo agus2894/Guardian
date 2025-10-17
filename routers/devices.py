@@ -40,7 +40,6 @@ async def get_devices_detailed(
 
             devices = cursor.fetchall()
 
-            # Obtener estadísticas básicas
             cursor.execute('''
                 SELECT
                     COUNT(DISTINCT ip) as unique_ips,

@@ -21,7 +21,6 @@ async def send_email_notification(subject: str, message: str, to_email: str = No
         return False
 
     try:
-        # Crear mensaje
         msg = MIMEMultipart()
         msg['From'] = from_email
         msg['To'] = to_email
@@ -58,7 +57,6 @@ async def send_email_notification(subject: str, message: str, to_email: str = No
 
         msg.attach(MIMEText(html_body, 'html'))
 
-        # Enviar email
         await aiosmtplib.send(
             msg,
             hostname=smtp_server,
@@ -76,7 +74,6 @@ async def send_email_notification(subject: str, message: str, to_email: str = No
         return False
 
 def send_notification_sync(subject: str, message: str, to_email: str = None):
-    """Versión síncrona para usar en funciones no async"""
     try:
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(send_email_notification(subject, message, to_email))
