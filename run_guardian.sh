@@ -22,11 +22,11 @@ pip install -r requirements.txt --quiet
 
 echo ""
 echo "🚀 Iniciando Guardian Security System..."
-echo "💡 Acceso: http://localhost:8000"
+echo "💡 Acceso: http://localhost:8001"
 echo "👤 Usuario: admin | Contraseña: admin"
 echo ""
 echo "Presiona Ctrl+C para detener el servidor"
 echo "=============================="
 
 # Ejecutar Guardian
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+./venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
